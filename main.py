@@ -1,7 +1,7 @@
 import requests
 from dotenv import load_dotenv
 import os
-
+import json
 
 def get_coordinates():
     api_key = os.getenv("API_KEY")
@@ -87,13 +87,26 @@ def main():
     coordinates_data = get_coordinates()
 
     if coordinates_data:
+        # collect everything here
+        all_data = []
         print("Coordinates:", coordinates_data)
+
         for city in coordinates_data:
             weather_data = get_weather(city)
             if weather_data:
                 print("Weather:", weather_data)
+                all_data.append({
+                    "city": city,
+                    "weather": weather_data
+                })
             else:
-                print('Failed to fetch weather data from weather API.')
+                print('Failed to fetch weather data for', city["name"])
+
+            # Write collected data to JSON file
+            with open("data.json", "w", encoding="utf-8") as f:
+                json.dump(all_data, f, indent=4, ensure_ascii=False)
+
+            print("Data written to data.json")
     else:
         print('Failed to fetch coordinates data from coordinates API.')
 
